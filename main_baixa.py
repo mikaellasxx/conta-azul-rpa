@@ -10,7 +10,7 @@ load_dotenv()
 conta_financeira = os.getenv("ID_ITAU") or os.getenv("ID_SICOOB")
 
 tokens = get_access_token()
-planilha = pd.read_excel("elasa02.xlsx")
+planilha = pd.read_excel("sodexo05.xlsx")
 
 data_pagamento = input("Digite a data de pagamento (formato YYYY-MM-DD): ")
 id_conta_financeira = input("Nome da conta financeira (itau ou sicoob): ")
@@ -23,18 +23,23 @@ elif id_conta_financeira.lower() == "sicoob":
 for linha in planilha.index:
     nota = int(planilha.loc[linha, "Nota"])
     nota_certa = f"{nota}.0"
-    valor_texto = str(planilha.loc[linha, "Valor"]).strip()
+
+    valor_original = planilha.loc[linha, "Valor"]
     
-    # Remove "R$" e espaços, depois converte vírgula em ponto
-    valor_limpo = valor_texto.replace("R$", "").replace(" ", "").replace(".", "").replace(",", ".")
-
-    try:
+    if isinstance(valor_original, str):
+        valor_limpo = (
+            valor_original
+            .replace("R$", "")
+            .replace(" ", "")
+            .replace(".", "")
+            .replace(",", ".")
+        )
+    
         valor = float(valor_limpo)
-    except ValueError:
-        print(f"Erro ao converter valor para nota {nota_certa}: {valor_texto}")
-        continue
-
-    resultado_pesquisa = pesquisa(nota_certa, tokens["access_token"])
+    else:
+        valor = float(valor_original)
+    
+        resultado_pesquisa = pesquisa(nota_certa, tokens["access_token"])
 
 
     if resultado_pesquisa["itens_totais"] == 0:
