@@ -10,10 +10,12 @@ load_dotenv()
 
 tokens = get_access_token()
 
-planilha = pd.read_excel("elasa02.xlsx")
 
 data_pagamento = input("Digite a data de pagamento (formato YYYY-MM-DD): ")
 id_conta_financeira = input("Nome da conta financeira (itau ou sicoob): ")
+arquivo = input("Digite o nome do arquivo Excel (ex: darbaixa.xlsx): ")
+
+planilha = pd.read_excel(arquivo)
 
 if id_conta_financeira.lower() == "itau":
     conta_financeira = os.getenv("ID_ITAU")
