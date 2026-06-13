@@ -11,7 +11,7 @@ load_dotenv()
 tokens = get_access_token()
 
 
-data_pagamento = input("Digite a data de pagamento (formato YYYY-MM-DD): ")
+data_pagamento_input = input("Digite a data de pagamento (formato YYYY-MM-DD): (ou dê enter para usar a data do arquivo)")
 id_conta_financeira = input("Nome da conta financeira (itau ou sicoob): ")
 arquivo = input("Digite o nome do arquivo Excel (ex: darbaixa.xlsx): ")
 
@@ -26,17 +26,26 @@ for linha in planilha.index:
     nota = int(planilha.loc[linha, "Nota"])
     nota_certa = f"{nota}.0"
 
-    valor_texto = str(planilha.loc[linha, "Valor"]).strip()
+    valor_original = planilha.loc[linha, "Valor"]
     
-    # Remove "R$" e espaços, depois converte vírgula em ponto
-    valor_limpo = valor_texto.replace("R$", "").replace(" ", "").replace(".", "").replace(",", ".")
+    if isinstance(valor_original, str):
+        valor_limpo = (
+            valor_original
+            .replace("R$", "")
+            .replace(" ", "")
+            .replace(".", "")
+            .replace(",", ".")
+        )
 
-    try:
-        valor = float(valor_limpo)
-    except ValueError:
-        print(f"Erro ao converter valor para nota {nota_certa}: {valor_texto}")
-        continue
+    else:
+        valor = float(valor_original)
 
+    data_pagamento = (
+        data_pagamento_input 
+        if data_pagamento_input 
+        else planilha.loc[linha, "Data"].strftime("%Y-%m-%d")
+    )
+    
     resultado_pesquisa = pesquisa(nota_certa, tokens["access_token"])
 
 
